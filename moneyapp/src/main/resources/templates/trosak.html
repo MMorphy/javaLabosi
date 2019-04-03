@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/trosak.css}">
+	<title>MoneyApp</title>
+</head>
+<body>
+	<div style="text-align: center" sec:authorize="isAuthenticated()">
+        <form method="POST" th:action="@{/logout}">
+            Ulogirani ste kao <span sec:authentication="name">Korisnik</span>.
+            <input type="submit" value="Logout">
+        </form>
+    </div>
+<div class="col-md-6">
+	<div class="col-md-12">
+		<img class="col-md-3" th:src="@{/images/piggy.png}">
+		<h1 class="naslov col-md-3">Money Saver</h1>
+	</div>
+	<div class="col-md-12">
+	<h2>Unos novog troška</h2>
+	<form method="POST" th:object="${trosak}" th:action="@{/troskovi/novitrosak}">
+	  <div class="form-group">
+	    <label for="naziv">Naziv:</label>
+	    <input type="text" class="form-control" id="naziv" placeholder="Unesite ime troška" th:field="${trosak.naziv}">
+	  	<p class="alert alert-warning" th:if="${#fields.hasErrors('naziv')}" th:errors="*{naziv}">Krivi unos naziva</p>
+	  </div>
+	  <div class="form-group">
+	    <label for="vrstaTroska">Vrsta troška:</label>
+	    <select th:field="*{vrstaTroska}" class="form-control">
+			<option value="" hidden="hidden">------ Odaberite vrijednost ------</option>
+			<option th:each="vrsta : ${vrste}" 
+					th:value="${vrsta}" 
+					th:text="${vrsta}">
+			</option>
+		</select>
+	  </div>
+	  <div class="form-group">
+	    <label for="iznos">Iznos:</label>
+	    <input type="number" class="form-control" id="iznos" th:field="${trosak.iznos}" placeholder="0">
+	  	<p class="alert alert-warning" th:if="${#fields.hasErrors('iznos')}" th:errors="${trosak.iznos}">Krivi unos iznosa! Molim pozitivan broj</p>
+	  </div>
+	  <input type="submit" value="Unesi trošak">
+	</form>
+	</div>
+</div>
+</body>
+</html>

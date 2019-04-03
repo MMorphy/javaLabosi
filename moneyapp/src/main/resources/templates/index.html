@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Prvi Labos</title>
+</head>
+<body>
+    <div style="text-align: center" sec:authorize="isAuthenticated()">
+        <form method="POST" th:action="@{/logout}">
+            Ulogirani ste kao <span sec:authentication="name">Korisnik</span>.
+            <input type="submit" value="Logout" class="btn btn-danger gumb">
+        </form>
+    </div>
+	<div>
+	<a th:href="@{/troskovi/novitrosak}">Unesi novi trošak</a>
+	</div>
+	
+</body>
+</html>
