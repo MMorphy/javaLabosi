@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html 	
+	xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
@@ -45,5 +47,8 @@
 	</form>
 	</div>
 </div>
+	<div>
+		<a sec:authorize="hasRole('ROLE_ADMIN')" class="col-md-2" th:href="@{/troskovi/role}">Pogledaj si role</a>
+	</div>
 </body>
 </html>

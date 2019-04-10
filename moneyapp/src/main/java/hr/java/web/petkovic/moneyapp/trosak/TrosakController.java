@@ -1,14 +1,19 @@
 package hr.java.web.petkovic.moneyapp.trosak;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -60,7 +65,6 @@ public class TrosakController {
 		return "redirect:/troskovi/novitrosak";
 	}
 
-	// ovo si mijenjao
 	@ModelAttribute("novcanik")
 	public Novcanik setNovcanik(HttpSession session) {
 		Novcanik novcanik = new Novcanik("Default", Novcanik.VrstaNovcanikaEnum.GOTOVINA);
@@ -69,5 +73,15 @@ public class TrosakController {
 		return novcanik;
 	}
 
+	@GetMapping("role")
+	public String pogledajRole(Model model)
+	{
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		Set<String> roles = authentication.getAuthorities().stream()
+		     .map(r -> (r.getAuthority().toString().substring(5).toLowerCase())).collect(Collectors.toSet());	
+		model.addAttribute("role", new ArrayList<>(roles));
+		return "admin";
+	}
 
 }

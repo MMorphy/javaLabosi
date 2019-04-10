@@ -38,6 +38,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	{
 		http
 			.authorizeRequests()
+			.antMatchers("/troskovi/role")
+			.hasRole("ADMIN")
 			.antMatchers("/troskovi/**")
 			.hasRole("USER")
 			.antMatchers("**")
