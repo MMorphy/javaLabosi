@@ -1,59 +1,93 @@
 package hr.java.web.petkovic.moneyapp.trosak;
 
+import java.time.LocalDateTime;
+
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class Trosak
 {
-	@NotEmpty(message = "Trošak mora imati naziv!")
-	@Size(min=3, max=25, message = "Naziv mora biti izmeðu 3 i 25 znakova!")
+	private Long id;
+	private LocalDateTime createDate;
+
+	@NotNull(message = "Polje Naziv ne smije biti prazno!")
+	@Size(min = 2, max = 30, message = "Naziv mora biti izmeÄ‘u 2 i 30 znakova!")
 	private String naziv;
 
-	@NotNull(message = "Trošak mora imati iznos!")
-	@Min(value=0, message = "Trošak mora biti pozitivan!")
+	@NotNull(message = "Polje Iznos ne smije biti prazno!")
+	@Min(value = 20, message = "Iznos mora biti veÄ‡i od 20!")
 	private Double iznos;
 
-	@NotNull(message = "Trošak mora imati vrstu!")
-	private VrstaTroskaEnum vrstaTroska;
+	@NotNull(message = "Vrsta TroÅ¡ka mora biti odabrana!")
+	private VrstaTroska vrstaTroska;
 
-	public String getNaziv() 
-	{
+	private Long novcanikId;
+	private Novcanik novcanik;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public LocalDateTime getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(LocalDateTime createDate) {
+		this.createDate = createDate;
+	}
+
+	public String getNaziv() {
 		return naziv;
 	}
 
-	public void setNaziv(String naziv) 
-	{
-		this.naziv = naziv;
+	public void setNaziv(String _naziv) {
+		this.naziv = _naziv;
 	}
 
-	public Double getIznos() 
-	{
+	public Double getIznos() {
 		return iznos;
 	}
 
-	public void setIznos(Double iznos) 
-	{
-		this.iznos = iznos;
+	public void setIznos(Double _iznos) {
+		this.iznos = _iznos;
 	}
-	
-	public VrstaTroskaEnum getVrstaTroska() 
-	{
+
+	public VrstaTroska getVrstaTroska() {
 		return vrstaTroska;
 	}
 
-	public void setVrstaTroska(VrstaTroskaEnum vrstaTroska) 
-	{
-		this.vrstaTroska = vrstaTroska;
+	public void setVrstaTroska(VrstaTroska _vrstaTroska) {
+		this.vrstaTroska = _vrstaTroska;
 	}
 
-	public static enum VrstaTroskaEnum 
-	{
-		Špeceraj,
-		Režije,
-		Najam,
-		Ostalo
+	public Long getNovcanikId() {
+		return novcanikId;
 	}
+
+	public void setNovcanikId(Long novcanikId) {
+		this.novcanikId = novcanikId;
+	}
+
+	public Novcanik getNovcanik() {
+		return novcanik;
+	}
+
+	public void setNovcanik(Novcanik novcanik) {
+		this.novcanik = novcanik;
+	}
+	
+	public Trosak() {
+		this.createDate = LocalDateTime.now();
+	}
+
+	public static enum VrstaTroska {
+		Hrana, ReÅ¾ije, Ostalo
+	}
+
 
 }

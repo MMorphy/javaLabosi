@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<form method="POST" th:object="${auth}" th:action="@{/troskovi/role}">
+	  <div class="form-group">
+	    <select th:field="${auth.user}" class="form-control">
+			<option value="" hidden="hidden">------ Odaberite vrijednost ------</option>
+			<option th:each="a : ${auths}" 
+					th:value="${a.user}" 
+					th:text="${a.user}">
+			</option>
+		</select>
+	    <select th:field="*{role}" class="form-control">
+			<option value="" hidden="hidden">------ Odaberite vrijednost ------</option>
+			<option th:each="a1 : ${auths}" 
+					th:value="${a1.role}" 
+					th:text="${a1.role}">
+			</option>
+		</select>
+	  </div>
+	  <input type="submit" value="Mijenjaj rolu">
+	</form>
+</body>
+</html>

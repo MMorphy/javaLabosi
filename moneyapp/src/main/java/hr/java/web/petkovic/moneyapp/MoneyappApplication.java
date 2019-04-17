@@ -3,7 +3,7 @@ package hr.java.web.petkovic.moneyapp;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication()
 public class MoneyappApplication {
 
 	public static void main(String[] args) {

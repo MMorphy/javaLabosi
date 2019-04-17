@@ -1,14 +1,17 @@
 package hr.java.web.petkovic.moneyapp.trosak;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,55 +22,118 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
+import hr.java.web.petkovic.moneyapp.repository.JdbcAdminRepository;
+import hr.java.web.petkovic.moneyapp.repository.JdbcNovcanikRepository;
+import hr.java.web.petkovic.moneyapp.repository.JdbcTrosakRepository;
+
 @Controller
 @RequestMapping("/troskovi")
-@SessionAttributes({ "vrste", "novcanik" }) // ovo si mijenjao
+@SessionAttributes({ "vrste", "novcanik" }) 
 public class TrosakController {
 	private static Logger logger = LoggerFactory.getLogger(TrosakController.class);
 
+	@Autowired
+	public JdbcTrosakRepository trosakRepo;
+	@Autowired
+	public JdbcNovcanikRepository novcanikRepo;
+	@Autowired
+	public JdbcAdminRepository adminRepo;
+	
 	@GetMapping("/novitrosak")
-	public String trosakForm(Model model, HttpSession session) {
+	public String trosakForm(Model model) {
+		
 		model.addAttribute("trosak", new Trosak());
-		model.addAttribute("vrste", Trosak.VrstaTroskaEnum.values());
-		logger.debug("Poziv get-a s putanjom: /troskovi/novitrosak");
+		logger.debug("Novi trosak u modelu");
+		
+		model.addAttribute("vrste", Trosak.VrstaTroska.values());
+		
+		logger.debug("Vrste troska u modelu");
+		
 		return "trosak";
 	}
-
+	
 	@PostMapping("/novitrosak")
-	public String processForm(@Valid Trosak trosak, BindingResult bindingResult, Model model, HttpSession session) {
-		logger.debug("Poziv posta-a s putanjom: /troskovi/novitrosak");
+	public String procesForm(@Valid Trosak trosak, BindingResult bindingResult, Model model, HttpSession session) {
+		
 		if (bindingResult.hasErrors()) {
-			logger.error("Greške u formi. Broj greški: " + bindingResult.getErrorCount());
+			logger.error("Invalid ");
 			return "trosak";
-		}
-		logger.info("Unesen je novi trosak: " + trosak.toString());
-		((Novcanik) session.getAttribute("novcanik")).addTrosak(trosak);
+        }
+		logger.debug("Greske u formi za trosak");
+		
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Novcanik novcanik = novcanikRepo.findByUsername(username);
+		
+		trosak.setNovcanikId(novcanik.getId());
+		
+		trosakRepo.save(trosak);
+		
 		model.addAttribute("trosak", trosak);
-		model.addAttribute("suma", ((Novcanik) session.getAttribute("novcanik")).getTroskoviSum());
+		
+		novcanik.listaTroskova = (List<Trosak>) trosakRepo.findAllInNovcanik(novcanik.getId());
+		
+		Double suma = 0d;
+		for (Trosak t : novcanik.listaTroskova) {
+			suma -= t.getIznos();
+		}
+		model.addAttribute("suma", suma);
+		logger.debug("Suma za novcanik: " + novcanik.getIme() + " je " + suma);
+		
+		model.addAttribute("novcanik", novcanik);
+		
+		LocalDateTime datum = trosak.getCreateDate();
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+		String curDate = datum.format(format);
 
-		Date date = new Date(System.currentTimeMillis());
-		DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
-		model.addAttribute("date", df.format(date));
+		model.addAttribute("date", curDate);
 
-		logger.debug("Trenutni model:" + model.toString());
+		logger.debug("Uspjesno unesen trosak");
 		return "uneseniTrosak";
 	}
-
+	
+	@ModelAttribute("novcanik")
+	public Novcanik initNovcanik(HttpSession session) {
+		session.setAttribute("novcanik", novcanikRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
+		logger.debug("Nova sesija. Dodan novcanik:" + session.getAttribute("novcanik").toString());
+		return new Novcanik();
+	}
+	
 	@GetMapping("/isprazniNovcanik")
-	public String resetWallet(SessionStatus status) {
-		logger.info("Praznjenje novcanika. Kraj sessije: " + status.hashCode());
+	public String resetWallet(SessionStatus status, HttpSession session) {
+		trosakRepo.deleteByNovcanik(((Novcanik) session.getAttribute("novcanik")).getId());
 		status.setComplete();
 		return "redirect:/troskovi/novitrosak";
 	}
 
-	// ovo si mijenjao
-	@ModelAttribute("novcanik")
-	public Novcanik setNovcanik(HttpSession session) {
-		Novcanik novcanik = new Novcanik("Default", Novcanik.VrstaNovcanikaEnum.GOTOVINA);
-		session.setAttribute("novcanik", novcanik);
-		logger.info("Pocetak sessije. Napravljen novi novcanik.");
-		return novcanik;
+	@GetMapping("/role")
+	public String pogledajRole(Model model)
+	{
+		String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
+		List<Auth> auths = new ArrayList<>();
+		auths=(List<Auth>) adminRepo.findAll();
+		List<Auth> modelAuths = new ArrayList<>();
+		for (Auth a : auths)
+		{
+			if (!a.getUser().equals(currentUser))
+			{
+				modelAuths.add(a);
+			}
+		}
+		model.addAttribute("auths", modelAuths);
+		return "roleStranica";
 	}
 
-
+	@PostMapping("/role")
+	public String procesAuth(Auth auth)
+	{
+		if(auth.getRole().equals("ROLE_USER"))
+		{
+			adminRepo.save(new Auth(auth.getUser(), "ROLE_ADMIN"));
+		}
+		else
+		{
+			adminRepo.deleteByUserAndRole(auth.getUser(), "ROLE_ADMIN");
+		}
+		return "trosak";
+	}
 }
