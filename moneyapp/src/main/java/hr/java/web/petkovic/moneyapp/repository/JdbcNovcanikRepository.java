@@ -35,8 +35,8 @@ public class JdbcNovcanikRepository implements NovcanikRepository{
 	}
 	
 	@Override
-	public Novcanik findByUsername(String username) {
-		return jdbcTemplate.queryForObject("Select * from novcanik n join users u on u.id = n.username_id where u.username = ?", this::mapRowToNovcanik, username);
+	public Novcanik findByUsernameId(Long usernameId) {
+		return jdbcTemplate.queryForObject("Select * from novcanik n where username_id = ?", this::mapRowToNovcanik, usernameId);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class JdbcNovcanikRepository implements NovcanikRepository{
 		values.put("naziv", novcanik.getIme());
 		values.put("createdate", LocalDateTime.now());
 		values.put("tipnovcanika", novcanik.getTipNovcanika().toString());
-		values.put("username_id", novcanik.getUsernameId());
+//		values.put("username_id", novcanik.getUsernameId());
 		return novcanikInserter.executeAndReturnKey(values).longValue();
 	}
 
@@ -61,7 +61,7 @@ public class JdbcNovcanikRepository implements NovcanikRepository{
 		trosak.setId(rs.getLong("id"));
 		trosak.setIme(rs.getString("ime"));
 		trosak.setTipNovcanika(Novcanik.TipNovcanika.valueOf(rs.getString("tipnovcanika")));
-		trosak.setUsernameId(rs.getLong("username_id"));
+//		trosak.setUsernameId(rs.getLong("username_id"));
 		
 		return trosak;
 	}

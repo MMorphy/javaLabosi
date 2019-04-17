@@ -2,7 +2,6 @@ package hr.java.web.petkovic.moneyapp.trosak;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -22,65 +21,65 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
-import hr.java.web.petkovic.moneyapp.repository.JdbcAdminRepository;
-import hr.java.web.petkovic.moneyapp.repository.JdbcNovcanikRepository;
-import hr.java.web.petkovic.moneyapp.repository.JdbcTrosakRepository;
+import hr.java.web.petkovic.moneyapp.repository.HibernateNovcanikRepository;
+import hr.java.web.petkovic.moneyapp.repository.HibernateTrosakRepository;
+import hr.java.web.petkovic.moneyapp.repository.HibernateUserRepository;
 
 @Controller
 @RequestMapping("/troskovi")
-@SessionAttributes({ "vrste", "novcanik" }) 
+@SessionAttributes({ "vrste", "novcanik" })
 public class TrosakController {
 	private static Logger logger = LoggerFactory.getLogger(TrosakController.class);
 
 	@Autowired
-	public JdbcTrosakRepository trosakRepo;
+	public HibernateTrosakRepository trosakRepo;
 	@Autowired
-	public JdbcNovcanikRepository novcanikRepo;
+	public HibernateNovcanikRepository novcanikRepo;
 	@Autowired
-	public JdbcAdminRepository adminRepo;
-	
+	public HibernateUserRepository userRepo;
+
 	@GetMapping("/novitrosak")
 	public String trosakForm(Model model) {
-		
+
 		model.addAttribute("trosak", new Trosak());
 		logger.debug("Novi trosak u modelu");
-		
+
 		model.addAttribute("vrste", Trosak.VrstaTroska.values());
-		
+
 		logger.debug("Vrste troska u modelu");
-		
+
 		return "trosak";
 	}
-	
+
 	@PostMapping("/novitrosak")
 	public String procesForm(@Valid Trosak trosak, BindingResult bindingResult, Model model, HttpSession session) {
-		
+
 		if (bindingResult.hasErrors()) {
 			logger.error("Invalid ");
 			return "trosak";
-        }
+		}
 		logger.debug("Greske u formi za trosak");
-		
+
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		Novcanik novcanik = novcanikRepo.findByUsername(username);
-		
+		Novcanik novcanik = novcanikRepo.findByUsernameId(userRepo.findByName(username).getId());
+
 		trosak.setNovcanikId(novcanik.getId());
-		
+
 		trosakRepo.save(trosak);
-		
+
 		model.addAttribute("trosak", trosak);
-		
+
 		novcanik.listaTroskova = (List<Trosak>) trosakRepo.findAllInNovcanik(novcanik.getId());
-		
+
 		Double suma = 0d;
 		for (Trosak t : novcanik.listaTroskova) {
 			suma -= t.getIznos();
 		}
 		model.addAttribute("suma", suma);
 		logger.debug("Suma za novcanik: " + novcanik.getIme() + " je " + suma);
-		
+
 		model.addAttribute("novcanik", novcanik);
-		
+
 		LocalDateTime datum = trosak.getCreateDate();
 		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 		String curDate = datum.format(format);
@@ -90,50 +89,35 @@ public class TrosakController {
 		logger.debug("Uspjesno unesen trosak");
 		return "uneseniTrosak";
 	}
-	
+
 	@ModelAttribute("novcanik")
 	public Novcanik initNovcanik(HttpSession session) {
-		session.setAttribute("novcanik", novcanikRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
+		Long userId = userRepo.findByName(SecurityContextHolder.getContext().getAuthentication().getName()).getId();
+		Novcanik novcanik = novcanikRepo.findByUsernameId(userId);
+		session.setAttribute("novcanik", novcanik);
 		logger.debug("Nova sesija. Dodan novcanik:" + session.getAttribute("novcanik").toString());
 		return new Novcanik();
 	}
-	
+
 	@GetMapping("/isprazniNovcanik")
 	public String resetWallet(SessionStatus status, HttpSession session) {
 		trosakRepo.deleteByNovcanik(((Novcanik) session.getAttribute("novcanik")).getId());
 		status.setComplete();
 		return "redirect:/troskovi/novitrosak";
 	}
-
-	@GetMapping("/role")
-	public String pogledajRole(Model model)
-	{
-		String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
-		List<Auth> auths = new ArrayList<>();
-		auths=(List<Auth>) adminRepo.findAll();
-		List<Auth> modelAuths = new ArrayList<>();
-		for (Auth a : auths)
-		{
-			if (!a.getUser().equals(currentUser))
-			{
-				modelAuths.add(a);
-			}
-		}
-		model.addAttribute("auths", modelAuths);
-		return "roleStranica";
-	}
-
-	@PostMapping("/role")
-	public String procesAuth(Auth auth)
-	{
-		if(auth.getRole().equals("ROLE_USER"))
-		{
-			adminRepo.save(new Auth(auth.getUser(), "ROLE_ADMIN"));
-		}
-		else
-		{
-			adminRepo.deleteByUserAndRole(auth.getUser(), "ROLE_ADMIN");
-		}
-		return "trosak";
-	}
+	/*
+	 * @GetMapping("/role") public String pogledajRole(Model model) { String
+	 * currentUser =
+	 * SecurityContextHolder.getContext().getAuthentication().getName(); List<Auth>
+	 * auths = new ArrayList<>(); auths=(List<Auth>) adminRepo.findAll(); List<Auth>
+	 * modelAuths = new ArrayList<>(); for (Auth a : auths) { if
+	 * (!a.getUser().equals(currentUser)) { modelAuths.add(a); } }
+	 * model.addAttribute("auths", modelAuths); return "roleStranica"; }
+	 * 
+	 * @PostMapping("/role") public String procesAuth(Auth auth) {
+	 * if(auth.getRole().equals("ROLE_USER")) { adminRepo.save(new
+	 * Auth(auth.getUser(), "ROLE_ADMIN")); } else {
+	 * adminRepo.deleteByUserAndRole(auth.getUser(), "ROLE_ADMIN"); } return
+	 * "trosak"; }
+	 */
 }

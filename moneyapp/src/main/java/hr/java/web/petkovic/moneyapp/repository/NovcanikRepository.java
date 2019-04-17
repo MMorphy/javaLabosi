@@ -7,7 +7,7 @@ public interface NovcanikRepository {
 
 	public Novcanik findOne(Long id);
 
-	public Novcanik findByUsername(String username);
+	public Novcanik findByUsernameId(Long usernameId);
 
 	public Novcanik save(Novcanik novcanik);
 
