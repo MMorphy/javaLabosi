@@ -2,7 +2,10 @@ package hr.java.web.petkovic.moneyapp.trosak;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -46,6 +49,25 @@ public class TrosakController {
 
 		model.addAttribute("vrste", Trosak.VrstaTroska.values());
 
+		List<Novcanik> novcani = (List<Novcanik>) novcanikRepo.findAllByUsernameId(
+				userRepo.findByName(SecurityContextHolder.getContext().getAuthentication().getName()).getId());
+		List<Trosak> troskoviPoNov = new ArrayList<>();
+		Map<Long, Double> mapaSuma = new HashMap<>();
+		for (Novcanik nov : novcani)
+		{
+			int i = 0;
+			troskoviPoNov = (List<Trosak>) trosakRepo.findAllInNovcanik(nov.getId());
+			Double suma = 0d;
+			for (Trosak tr : troskoviPoNov)
+			{
+				suma-=tr.getIznos();
+			}
+			mapaSuma.put(nov.getId(), suma);
+		}
+		model.addAttribute("novcanici", novcani);
+		model.addAttribute("mapa", mapaSuma);
+		logger.info("Novcanici: " + novcanikRepo.findAllByUsernameId(
+				userRepo.findByName(SecurityContextHolder.getContext().getAuthentication().getName()).getId()));
 		logger.debug("Vrste troska u modelu");
 
 		return "trosak";
@@ -58,12 +80,9 @@ public class TrosakController {
 			logger.error("Invalid ");
 			return "trosak";
 		}
-		logger.debug("Greske u formi za trosak");
+		logger.info("trosak novcanikId" + trosak.getNovcanikId());
 
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		Novcanik novcanik = novcanikRepo.findByUsernameId(userRepo.findByName(username).getId());
-
-		trosak.setNovcanikId(novcanik.getId());
+		Novcanik novcanik = novcanikRepo.findOne(trosak.getNovcanikId());
 
 		trosakRepo.save(trosak);
 
@@ -103,6 +122,21 @@ public class TrosakController {
 	public String resetWallet(SessionStatus status, HttpSession session) {
 		trosakRepo.deleteByNovcanik(((Novcanik) session.getAttribute("novcanik")).getId());
 		status.setComplete();
+		return "redirect:/troskovi/novitrosak";
+	}
+
+	@GetMapping("/novinovcanik")
+	public String getNewWalletForm(Model model) {
+		Novcanik novc = new Novcanik();
+		model.addAttribute("transportnov", novc);
+		model.addAttribute("vrstenov", Novcanik.TipNovcanika.values());
+		return "newwallet";
+	}
+
+	@PostMapping("/novinovcanik")
+	public String processWalletForm(Novcanik novcanik) {
+		novcanik.setUser(userRepo.findByName(SecurityContextHolder.getContext().getAuthentication().getName()));
+		novcanikRepo.save(novcanik);
 		return "redirect:/troskovi/novitrosak";
 	}
 	/*

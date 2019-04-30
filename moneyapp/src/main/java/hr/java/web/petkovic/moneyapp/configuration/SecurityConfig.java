@@ -38,9 +38,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.authorizeRequests()
 		.antMatchers("/troskovi/**").hasRole("USER").antMatchers("/**").permitAll()
 		.and()
+		.csrf().ignoringAntMatchers("/api/**", "/login", "/logout")
+		.and()
 		.formLogin().loginPage("/login").defaultSuccessUrl("/troskovi/novitrosak", true)
 		.and()
 		.logout().logoutSuccessUrl("/login");
+		
 		
 		http.csrf().ignoringAntMatchers("/h2-console/**");
 		http.headers().disable();

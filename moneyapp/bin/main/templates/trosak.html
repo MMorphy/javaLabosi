@@ -35,6 +35,16 @@
 					th:text="${vrsta}">
 			</option>
 		</select>
+		
+		<select th:field="*{novcanikId}" class="form-control">
+			<option value="" hidden="hidden">------ Odaberite vrijednost ------</option>
+			<option th:each="nov : ${novcanici}" 
+					th:value="${nov.id}" 
+					th:text="${nov.ime} + ${mapa.get(nov.id)}">
+			</option>
+		</select>
+		
+		
 	  </div>
 	  <div class="form-group">
 	    <label for="iznos">Iznos:</label>
@@ -42,6 +52,7 @@
 	  	<p class="alert alert-warning" th:if="${#fields.hasErrors('iznos')}" th:errors="${trosak.iznos}">Krivi unos iznosa! Molim pozitivan broj</p>
 	  </div>
 	  <input type="submit" value="Unesi trošak">
+	  <a th:href="@{/troskovi/novinovcanik}">Dodaj novcanik</a>
 	</form>
 	</div>
 	<!-- <a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/troskovi/role}">Pogledaj role</a>  -->

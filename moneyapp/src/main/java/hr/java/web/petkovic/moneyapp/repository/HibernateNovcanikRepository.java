@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import hr.java.web.petkovic.moneyapp.trosak.Novcanik;
+import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 
 @Primary
 @Repository
@@ -44,12 +45,36 @@ public class HibernateNovcanikRepository implements NovcanikRepository {
 		return (Novcanik)sessionFactory().createQuery("SELECT n FROM Novcanik n WHERE n.user.id = :id").setParameter("id", usernameId).getResultList().get(0);
 	}
 
+	public Iterable<Novcanik> findAllByUsernameId(Long usernameId)
+	{
+		return sessionFactory().createQuery("SELECT n FROM Novcanik n WHERE n.user.id = :id").setParameter("id", usernameId).getResultList();
+	}
+
 	@Override
 	public Novcanik save(Novcanik novcanik) {
 		novcanik.setCreateDate(LocalDateTime.now());
 		Serializable id = sessionFactory().save(novcanik);
 		novcanik.setId((Long)id);
 		return novcanik;
+	}
+
+
+	public Novcanik update(Novcanik novcanik)
+	{
+		if (novcanik.equals(findOne(novcanik.getId())))
+		{
+			sessionFactory().update(novcanik);
+			return novcanik;
+		}
+		else
+		{
+			return null;
+		}
+	}
+	public void delete(Long id)
+	{
+		Novcanik novcanik = findOne(id);
+		sessionFactory().delete(novcanik);
 	}
 
 }

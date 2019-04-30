@@ -45,7 +45,7 @@ public class Novcanik implements Serializable{
 	@Enumerated(EnumType.STRING)
 	@Column(name="tipnovcanika", length=20)
 	private TipNovcanika tipNovcanika;
-
+	
 	public String getIme() {
 		return ime;
 	}
