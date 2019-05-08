@@ -14,10 +14,7 @@ import org.springframework.stereotype.Repository;
 import hr.java.web.petkovic.moneyapp.trosak.Novcanik;
 import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 
-@Primary
-@Repository
-@Transactional
-public class HibernateNovcanikRepository implements NovcanikRepository {
+public class HibernateNovcanikRepository{
 
 	private final EntityManager em;
 
@@ -25,22 +22,18 @@ public class HibernateNovcanikRepository implements NovcanikRepository {
 		return (Session) em.getDelegate();
 	}
 
-	@Autowired
 	public HibernateNovcanikRepository(EntityManager em) {
 		this.em = em;
 	}
 
-	@Override
 	public Iterable<Novcanik> findAll() {
 		return sessionFactory().createQuery("SELECT n FROM Novcanik n", Novcanik.class).getResultList();
 	}
 
-	@Override
 	public Novcanik findOne(Long id) {
 		return sessionFactory().find(Novcanik.class, id);
 	}
 
-	@Override
 	public Novcanik findByUsernameId(Long usernameId) {
 		return (Novcanik)sessionFactory().createQuery("SELECT n FROM Novcanik n WHERE n.user.id = :id").setParameter("id", usernameId).getResultList().get(0);
 	}
@@ -50,7 +43,6 @@ public class HibernateNovcanikRepository implements NovcanikRepository {
 		return sessionFactory().createQuery("SELECT n FROM Novcanik n WHERE n.user.id = :id").setParameter("id", usernameId).getResultList();
 	}
 
-	@Override
 	public Novcanik save(Novcanik novcanik) {
 		novcanik.setCreateDate(LocalDateTime.now());
 		Serializable id = sessionFactory().save(novcanik);

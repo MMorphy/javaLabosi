@@ -13,38 +13,31 @@ import org.springframework.stereotype.Repository;
 
 import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 
-@Repository
-public class JdbcTrosakRepository implements TrosakRepository{
+public class JdbcTrosakRepository {
 	private final JdbcTemplate jdbcTemplate;
 	private final SimpleJdbcInsert trosakInserter;
 
-	@Autowired
 	public JdbcTrosakRepository(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.trosakInserter = new SimpleJdbcInsert(jdbcTemplate).withTableName("trosak").usingGeneratedKeyColumns("id");
 	}
 
-	@Override
 	public Iterable<Trosak> findAll() {
 		return jdbcTemplate.query("select * from trosak", this::mapRowToTrosak);
 	}
 	
-	@Override
 	public Iterable<Trosak> findAllInNovcanik(Long id) {
 		return jdbcTemplate.query("select * from trosak where novcanik_id = ?", this::mapRowToTrosak, id);
 	}
 
-	@Override
 	public Trosak findOne(Long id) {
 		return jdbcTemplate.queryForObject("select * from trosak where id = ?", this::mapRowToTrosak, id);
 	}
 	
-	@Override
 	public void deleteByNovcanik(Long id) {
 		jdbcTemplate.update("delete from trosak where novcanik_id = ?", id);
 	}
 
-	@Override
 	public Trosak save(Trosak trosak) {
 		trosak.setId(saveTrosakDetails(trosak));
 		return trosak;

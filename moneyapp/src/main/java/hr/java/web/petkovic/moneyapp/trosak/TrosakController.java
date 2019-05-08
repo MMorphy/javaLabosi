@@ -10,23 +10,25 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.hibernate.mapping.Array;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
-import hr.java.web.petkovic.moneyapp.repository.HibernateNovcanikRepository;
-import hr.java.web.petkovic.moneyapp.repository.HibernateTrosakRepository;
-import hr.java.web.petkovic.moneyapp.repository.HibernateUserRepository;
+import hr.java.web.petkovic.moneyapp.repository.NovcanikRepository;
+import hr.java.web.petkovic.moneyapp.repository.TrosakRepository;
+import hr.java.web.petkovic.moneyapp.repository.UserRepository;
 
 @Controller
 @RequestMapping("/troskovi")
@@ -34,13 +36,16 @@ import hr.java.web.petkovic.moneyapp.repository.HibernateUserRepository;
 public class TrosakController {
 	private static Logger logger = LoggerFactory.getLogger(TrosakController.class);
 
-	@Autowired
-	public HibernateTrosakRepository trosakRepo;
-	@Autowired
-	public HibernateNovcanikRepository novcanikRepo;
-	@Autowired
-	public HibernateUserRepository userRepo;
+	private TrosakRepository trosakRepo;
+	private NovcanikRepository novcanikRepo;
+	private UserRepository userRepo;
 
+	public TrosakController(TrosakRepository trosakRepo, NovcanikRepository novcanikRepo, UserRepository userRepo) 
+	{
+		this.trosakRepo = trosakRepo;
+		this.novcanikRepo = novcanikRepo;
+		this.userRepo = userRepo;
+	}
 	@GetMapping("/novitrosak")
 	public String trosakForm(Model model) {
 
@@ -49,14 +54,14 @@ public class TrosakController {
 
 		model.addAttribute("vrste", Trosak.VrstaTroska.values());
 
-		List<Novcanik> novcani = (List<Novcanik>) novcanikRepo.findAllByUsernameId(
-				userRepo.findByName(SecurityContextHolder.getContext().getAuthentication().getName()).getId());
+		List<Novcanik> novcani = (List<Novcanik>) novcanikRepo.findByUser(
+				userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
 		List<Trosak> troskoviPoNov = new ArrayList<>();
 		Map<Long, Double> mapaSuma = new HashMap<>();
 		for (Novcanik nov : novcani)
 		{
 			int i = 0;
-			troskoviPoNov = (List<Trosak>) trosakRepo.findAllInNovcanik(nov.getId());
+			troskoviPoNov = (List<Trosak>) trosakRepo.findByNovcanikId(nov.getId());
 			Double suma = 0d;
 			for (Trosak tr : troskoviPoNov)
 			{
@@ -66,8 +71,8 @@ public class TrosakController {
 		}
 		model.addAttribute("novcanici", novcani);
 		model.addAttribute("mapa", mapaSuma);
-		logger.info("Novcanici: " + novcanikRepo.findAllByUsernameId(
-				userRepo.findByName(SecurityContextHolder.getContext().getAuthentication().getName()).getId()));
+		logger.info("Novcanici: " + novcanikRepo.findByUser(
+				userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName())));
 		logger.debug("Vrste troska u modelu");
 
 		return "trosak";
@@ -82,13 +87,13 @@ public class TrosakController {
 		}
 		logger.info("trosak novcanikId" + trosak.getNovcanikId());
 
-		Novcanik novcanik = novcanikRepo.findOne(trosak.getNovcanikId());
+		Novcanik novcanik = novcanikRepo.findById(trosak.getNovcanikId()).get();
 
 		trosakRepo.save(trosak);
 
 		model.addAttribute("trosak", trosak);
 
-		novcanik.listaTroskova = (List<Trosak>) trosakRepo.findAllInNovcanik(novcanik.getId());
+		novcanik.listaTroskova = (List<Trosak>) trosakRepo.findByNovcanikId(novcanik.getId());
 
 		Double suma = 0d;
 		for (Trosak t : novcanik.listaTroskova) {
@@ -111,16 +116,17 @@ public class TrosakController {
 
 	@ModelAttribute("novcanik")
 	public Novcanik initNovcanik(HttpSession session) {
-		Long userId = userRepo.findByName(SecurityContextHolder.getContext().getAuthentication().getName()).getId();
-		Novcanik novcanik = novcanikRepo.findByUsernameId(userId);
+		User user = userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+		List<Novcanik> novcanik = novcanikRepo.findByUser(user);
 		session.setAttribute("novcanik", novcanik);
 		logger.debug("Nova sesija. Dodan novcanik:" + session.getAttribute("novcanik").toString());
 		return new Novcanik();
 	}
 
+	@Transactional
 	@GetMapping("/isprazniNovcanik")
 	public String resetWallet(SessionStatus status, HttpSession session) {
-		trosakRepo.deleteByNovcanik(((Novcanik) session.getAttribute("novcanik")).getId());
+		trosakRepo.deleteByNovcanikId(((Novcanik) session.getAttribute("novcanik")).getId());
 		status.setComplete();
 		return "redirect:/troskovi/novitrosak";
 	}
@@ -135,9 +141,25 @@ public class TrosakController {
 
 	@PostMapping("/novinovcanik")
 	public String processWalletForm(Novcanik novcanik) {
-		novcanik.setUser(userRepo.findByName(SecurityContextHolder.getContext().getAuthentication().getName()));
+		novcanik.setUser(userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
 		novcanikRepo.save(novcanik);
 		return "redirect:/troskovi/novitrosak";
+	}
+
+	@GetMapping("trazitrosak")
+	public String traziTrosak()
+	{
+		return "traziTrosak";
+	}
+
+	@PostMapping("trazitrosak")
+	public String nadjenTrosak(@RequestParam String imeTroska, Model model)
+	{
+		List<Trosak> troskovi = new ArrayList<>();
+		troskovi = trosakRepo.findByNazivLike(imeTroska);
+		logger.info("troskovi" + troskovi.toString());
+		model.addAttribute("listaTrazenihTroskova", troskovi);
+		return "traziTrosak";
 	}
 	/*
 	 * @GetMapping("/role") public String pogledajRole(Model model) { String

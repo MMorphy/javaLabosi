@@ -74,6 +74,14 @@ public class Novcanik implements Serializable{
 		this.createDate = createDate;
 	}
 
+	public List<Trosak> getListaTroskova() {
+		return listaTroskova;
+	}
+
+	public void setListaTroskova(List<Trosak> listaTroskova) {
+		this.listaTroskova = listaTroskova;
+	}
+
 	public Novcanik() {
 	}
 

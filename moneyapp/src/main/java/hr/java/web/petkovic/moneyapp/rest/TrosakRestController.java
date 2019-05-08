@@ -1,5 +1,8 @@
 package hr.java.web.petkovic.moneyapp.rest;
 
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -14,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import hr.java.web.petkovic.moneyapp.repository.HibernateNovcanikRepository;
-import hr.java.web.petkovic.moneyapp.repository.HibernateTrosakRepository;
+import hr.java.web.petkovic.moneyapp.repository.NovcanikRepository;
+import hr.java.web.petkovic.moneyapp.repository.TrosakRepository;
 import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 
 @RestController
@@ -24,10 +27,12 @@ import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 @Secured({"ROLE_USER", "ROLE_ADMIN"})
 public class TrosakRestController {
 
-	private final HibernateTrosakRepository trosakRepo;
-	private final HibernateNovcanikRepository novcanikRepo;
+	@Autowired
+	private final TrosakRepository trosakRepo;
+	@Autowired
+	private final NovcanikRepository novcanikRepo;
 
-	public TrosakRestController(HibernateTrosakRepository trosak, HibernateNovcanikRepository novcanik)
+	public TrosakRestController(TrosakRepository trosak, NovcanikRepository novcanik)
 	{
 		this.trosakRepo = trosak;
 		this.novcanikRepo = novcanik;
@@ -42,14 +47,14 @@ public class TrosakRestController {
 	@GetMapping("/{id}")
 	public ResponseEntity<Trosak> findOne(@PathVariable Long id)
 	{
-		Trosak trosak = trosakRepo.findOne(id);
-		if (trosak == null)
+		Optional<Trosak> trosak = trosakRepo.findById(id);
+		if (trosak.isEmpty())
 		{
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 		else
 		{
-			return new ResponseEntity<Trosak>(trosak, HttpStatus.OK);
+			return new ResponseEntity<Trosak>(trosak.get(), HttpStatus.OK);
 		}
 	}
 
@@ -63,8 +68,23 @@ public class TrosakRestController {
 	@PutMapping("/{id}")
 	public ResponseEntity<Trosak> update(@PathVariable Long id, @RequestBody Trosak trosak)
 	{
-		Trosak tr = trosakRepo.update(trosak, id);
-		return new ResponseEntity<Trosak>(tr, HttpStatus.OK);
+		Optional<Trosak> tr = trosakRepo.findById(id);
+		if (tr.isPresent())
+		{
+			Trosak tro = tr.get();
+			tro.setCreateDate(trosak.getCreateDate());
+			tro.setIznos(trosak.getIznos());
+			tro.setNaziv(trosak.getNaziv());
+			tro.setNovcanikId(trosak.getNovcanikId());
+			tro.setVrstaTroska(trosak.getVrstaTroska());
+			trosakRepo.save(tro);
+			return new ResponseEntity<Trosak>(tro, HttpStatus.OK);
+		}
+		else
+		{
+			trosakRepo.save(trosak);
+			return new ResponseEntity<Trosak>(trosak, HttpStatus.OK);
+		}
 
 	}
 
@@ -72,6 +92,6 @@ public class TrosakRestController {
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id)
 	{
-		trosakRepo.delete(id);
+		trosakRepo.deleteById(id);
 	}
 }

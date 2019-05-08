@@ -1,5 +1,8 @@
 package hr.java.web.petkovic.moneyapp.rest;
 
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -14,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import hr.java.web.petkovic.moneyapp.repository.HibernateNovcanikRepository;
-import hr.java.web.petkovic.moneyapp.repository.HibernateTrosakRepository;
+import hr.java.web.petkovic.moneyapp.repository.NovcanikRepository;
+import hr.java.web.petkovic.moneyapp.repository.TrosakRepository;
 import hr.java.web.petkovic.moneyapp.trosak.Novcanik;
 
 @RestController
@@ -24,10 +27,12 @@ import hr.java.web.petkovic.moneyapp.trosak.Novcanik;
 @Secured({"ROLE_USER", "ROLE_ADMIN"})
 public class NovcanikRestController {
 
-	private final HibernateTrosakRepository trosakRepo;
-	private final HibernateNovcanikRepository novcanikRepo;
+	@Autowired
+	private final TrosakRepository trosakRepo;
+	@Autowired
+	private final NovcanikRepository novcanikRepo;
 
-	public NovcanikRestController(HibernateTrosakRepository trosak, HibernateNovcanikRepository novcanik)
+	public NovcanikRestController(TrosakRepository trosak, NovcanikRepository novcanik)
 	{
 		this.trosakRepo = trosak;
 		this.novcanikRepo = novcanik;
@@ -42,14 +47,14 @@ public class NovcanikRestController {
 	@GetMapping("/{id}")
 	public ResponseEntity<Novcanik> findOne(@PathVariable Long id)
 	{
-		Novcanik novcanik = novcanikRepo.findOne(id);
-		if (novcanik == null)
+		Optional<Novcanik> novcanik = novcanikRepo.findById(id);
+		if (novcanik.isEmpty())
 		{
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 		else
 		{
-			return new ResponseEntity<Novcanik>(novcanik, HttpStatus.OK);
+			return new ResponseEntity<Novcanik>(novcanik.get(), HttpStatus.OK);
 		}
 	}
 
@@ -63,14 +68,29 @@ public class NovcanikRestController {
 	@PutMapping("/{id}")
 	public ResponseEntity<Novcanik> update(@PathVariable Long id, @RequestBody Novcanik novcanik)
 	{
-		Novcanik nov = novcanikRepo.update(novcanik, id);
-		return new ResponseEntity<Novcanik>(nov, HttpStatus.OK);
+		Optional<Novcanik> optNovcanik= novcanikRepo.findById(id);
+		if (optNovcanik.isPresent())
+		{
+			Novcanik nov = optNovcanik.get();
+			nov.setCreateDate(novcanik.getCreateDate());
+			nov.setIme(novcanik.getIme());
+			nov.setTipNovcanika(novcanik.getTipNovcanika());
+			nov.setUser(novcanik.getUser());
+			nov.setListaTroskova(novcanik.getListaTroskova());
+			novcanikRepo.save(nov);
+			return new ResponseEntity<Novcanik>(nov, HttpStatus.OK);
+		}
+		else
+		{
+			novcanikRepo.save(novcanik);
+			return new ResponseEntity<Novcanik>(novcanik, HttpStatus.OK);
+		}
 	}
 
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id)
 	{
-		novcanikRepo.delete(id);
+		novcanikRepo.deleteById(id);
 	}
 }

@@ -24,8 +24,8 @@
 			th:text="'Stanje u novčaniku ' + ${novcanik.ime} + ' tipa ' + ${novcanik.tipNovcanika} + ' je ' + ${suma} + ' kn.'" />
 
 		<a sec:authorize="hasRole('ROLE_ADMIN')" class="col-md-2"
-			th:href="@{/troskovi/isprazniNovcanik}">Isprazni novčanik</a> <a
-			class="col-md-2" th:href="@{/troskovi/novitrosak}">Povratak</a>
+			th:href="@{/troskovi/isprazniNovcanik}">Isprazni novčanik</a> 
+			<a class="col-md-2" th:href="@{/troskovi/novitrosak}">Povratak</a>
 
 	</div>
 </body>

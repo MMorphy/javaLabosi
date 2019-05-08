@@ -1,16 +1,20 @@
 package hr.java.web.petkovic.moneyapp.repository;
 
+import java.util.Optional;
+
+import org.springframework.data.repository.CrudRepository;
+
 import hr.java.web.petkovic.moneyapp.trosak.User;
 
-public interface UserRepository {
+public interface UserRepository extends CrudRepository<User, Long>{
 
-	public Iterable<User> findAll();
+	Iterable<User> findAll();
 
-	public User findOne(Long id);
+	Optional<User> findById(Long id);
 
-	public void deleteById(Long id);
+	void deleteById(Long id);
 
-	public User save(User user);
+	User save(User user);
 
-	public User findByName(String name);
+	User findByUsername(String username);
 }

@@ -14,10 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 
-@Primary
-@Repository
-@Transactional
-public class HibernateTrosakRepository implements TrosakRepository {
+public class HibernateTrosakRepository {
 
 	private final EntityManager em;
 
@@ -30,23 +27,19 @@ public class HibernateTrosakRepository implements TrosakRepository {
 		this.em = em;
 	}
 
-	@Override
 	public Iterable<Trosak> findAll() {
 		return sessionFactory().createQuery("SELECT t FROM Trosak t", Trosak.class).getResultList();
 	}
 
-	@Override
 	public Iterable<Trosak> findAllInNovcanik(Long id) {
 		return sessionFactory().createQuery("SELECT t FROM Trosak t WHERE t.novcanikId = :id", Trosak.class)
 				.setParameter("id", id).getResultList();
 	}
 
-	@Override
 	public Trosak findOne(Long id) {
 		return sessionFactory().find(Trosak.class, id);
 	}
 
-	@Override
 	public void deleteByNovcanik(Long id) {
 		List<Trosak> troskovi = (List<Trosak>) findAllInNovcanik(id);
 		for (Trosak trosak : troskovi) {
@@ -54,7 +47,6 @@ public class HibernateTrosakRepository implements TrosakRepository {
 		}
 	}
 
-	@Override
 	public Trosak save(Trosak trosak) {
 		trosak.setCreateDate(LocalDateTime.now());
 		Serializable id = sessionFactory().save(trosak);

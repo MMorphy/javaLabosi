@@ -1,14 +1,23 @@
 package hr.java.web.petkovic.moneyapp.repository;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.repository.CrudRepository;
+
 import hr.java.web.petkovic.moneyapp.trosak.Novcanik;
+import hr.java.web.petkovic.moneyapp.trosak.User;
 
-public interface NovcanikRepository {
-	public Iterable<Novcanik> findAll();
+public interface NovcanikRepository extends CrudRepository<Novcanik, Long> {
 
-	public Novcanik findOne(Long id);
+	Iterable<Novcanik> findAll();
 
-	public Novcanik findByUsernameId(Long usernameId);
+	Optional<Novcanik> findById(Long id);
 
-	public Novcanik save(Novcanik novcanik);
+	List<Novcanik> findByUser(User id);
+
+	void deleteById(Long id);
+
+	Novcanik save(Novcanik novcanik);
 
 }

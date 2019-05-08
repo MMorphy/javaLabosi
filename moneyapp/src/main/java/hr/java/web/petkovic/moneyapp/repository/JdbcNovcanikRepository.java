@@ -13,33 +13,27 @@ import org.springframework.stereotype.Repository;
 
 import hr.java.web.petkovic.moneyapp.trosak.Novcanik;
 
-@Repository
-public class JdbcNovcanikRepository implements NovcanikRepository{
+public class JdbcNovcanikRepository{
 	private final JdbcTemplate jdbcTemplate;
 	private final SimpleJdbcInsert novcanikInserter;
 
-	@Autowired
 	public JdbcNovcanikRepository(JdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.novcanikInserter = new SimpleJdbcInsert(jdbcTemplate).withTableName("novcanik").usingGeneratedKeyColumns("id");
 	}
 
-	@Override
 	public Iterable<Novcanik> findAll() {
 		return jdbcTemplate.query("select * from novcanik", this::mapRowToNovcanik);
 	}
 
-	@Override
 	public Novcanik findOne(Long id) {
 		return jdbcTemplate.queryForObject("Select * from novcanik where id = ?", this::mapRowToNovcanik, id);
 	}
 	
-	@Override
 	public Novcanik findByUsernameId(Long usernameId) {
 		return jdbcTemplate.queryForObject("Select * from novcanik n where username_id = ?", this::mapRowToNovcanik, usernameId);
 	}
 
-	@Override
 	public Novcanik save(Novcanik novcanik) {
 		novcanik.setId(saveTrosakDetails(novcanik));
 		return novcanik;
