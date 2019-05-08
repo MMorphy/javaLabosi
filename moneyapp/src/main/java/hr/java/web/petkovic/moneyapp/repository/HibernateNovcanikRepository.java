@@ -59,18 +59,25 @@ public class HibernateNovcanikRepository implements NovcanikRepository {
 	}
 
 
-	public Novcanik update(Novcanik novcanik)
+	public Novcanik update(Novcanik novcanik, Long id)
 	{
-		if (novcanik.equals(findOne(novcanik.getId())))
+		Novcanik nov = findOne(id);
+		if (nov != null)
 		{
-			sessionFactory().update(novcanik);
-			return novcanik;
+			nov.setCreateDate(novcanik.getCreateDate());
+			nov.setIme(novcanik.getIme());
+			nov.setTipNovcanika(novcanik.getTipNovcanika());
+			nov.setUser(novcanik.getUser());
+			sessionFactory().save(nov);
+			return nov;
 		}
 		else
 		{
-			return null;
+			sessionFactory().save(novcanik);
+			return novcanik;
 		}
 	}
+
 	public void delete(Long id)
 	{
 		Novcanik novcanik = findOne(id);

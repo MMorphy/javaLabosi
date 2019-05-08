@@ -62,16 +62,23 @@ public class HibernateTrosakRepository implements TrosakRepository {
 		return trosak;
 	}
 
-	public Trosak update(Trosak trosak)
+	public Trosak update(Trosak trosak, Long id)
 	{
-		if (trosak.equals(findOne(trosak.getId())))
+		Trosak tr = findOne(id);
+		if (tr != null)
 		{
-			sessionFactory().update(trosak);
-			return trosak;
+			tr.setCreateDate(trosak.getCreateDate());
+			tr.setIznos(trosak.getIznos());
+			tr.setNaziv(trosak.getNaziv());
+			tr.setNovcanikId(trosak.getNovcanikId());
+			tr.setVrstaTroska(trosak.getVrstaTroska());
+			sessionFactory().save(tr);
+			return tr;
 		}
 		else
 		{
-			return null;
+			sessionFactory().save(trosak);
+			return trosak;
 		}
 	}
 	public void delete(Long id)

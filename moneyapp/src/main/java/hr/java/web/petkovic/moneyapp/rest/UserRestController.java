@@ -14,63 +14,61 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import hr.java.web.petkovic.moneyapp.repository.HibernateNovcanikRepository;
-import hr.java.web.petkovic.moneyapp.repository.HibernateTrosakRepository;
-import hr.java.web.petkovic.moneyapp.trosak.Novcanik;
+import hr.java.web.petkovic.moneyapp.repository.HibernateUserRepository;
+import hr.java.web.petkovic.moneyapp.trosak.Trosak;
+import hr.java.web.petkovic.moneyapp.trosak.User;
 
 @RestController
-@RequestMapping(path="/api/novcanik", produces="application/json")
+@RequestMapping(path="/api/user", produces="application/json")
 @CrossOrigin
 @Secured({"ROLE_USER", "ROLE_ADMIN"})
-public class NovcanikRestController {
+public class UserRestController {
 
-	private final HibernateTrosakRepository trosakRepo;
-	private final HibernateNovcanikRepository novcanikRepo;
+	private final HibernateUserRepository userRepo;
 
-	public NovcanikRestController(HibernateTrosakRepository trosak, HibernateNovcanikRepository novcanik)
+	public UserRestController(HibernateUserRepository repo)
 	{
-		this.trosakRepo = trosak;
-		this.novcanikRepo = novcanik;
+		this.userRepo = repo;
 	}
 
 	@GetMapping
-	public Iterable<Novcanik> findAll()
+	public Iterable<User> findAll()
 	{
-		return novcanikRepo.findAll();
+		return userRepo.findAll();
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Novcanik> findOne(@PathVariable Long id)
+	public ResponseEntity<User> findOne(@PathVariable Long id)
 	{
-		Novcanik novcanik = novcanikRepo.findOne(id);
-		if (novcanik == null)
+		User user = userRepo.findOne(id);
+		if (user == null)
 		{
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 		else
 		{
-			return new ResponseEntity<Novcanik>(novcanik, HttpStatus.OK);
+			return new ResponseEntity<User>(user, HttpStatus.OK);
 		}
 	}
 
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping(consumes="application/json")
-	public Novcanik save(@RequestBody Novcanik trosak)
+	public User save(@RequestBody User user)
 	{
-		return novcanikRepo.save(trosak);
+		return userRepo.save(user);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Novcanik> update(@PathVariable Long id, @RequestBody Novcanik novcanik)
+	public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user)
 	{
-		Novcanik nov = novcanikRepo.update(novcanik, id);
-		return new ResponseEntity<Novcanik>(nov, HttpStatus.OK);
+		User usr = userRepo.update(user, id);
+		return new ResponseEntity<User>(usr, HttpStatus.OK);
 	}
 
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id)
 	{
-		novcanikRepo.delete(id);
+		userRepo.delete(id);
 	}
 }

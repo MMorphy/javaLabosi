@@ -56,4 +56,27 @@ public class HibernateUserRepository implements UserRepository {
 		return (User)sessionFactory().createQuery("SELECT u FROM User u WHERE u.username = :name", User.class).setParameter("name", name).getResultList().get(0);
 	}
 
+	public User update(User user, Long id)
+	{
+		User usr = findOne(id);
+		if(usr != null)
+		{
+			usr.setEnabled(user.getEnabled());
+			usr.setUsername(user.getUsername());
+			sessionFactory().save(usr);
+			return usr;
+		}
+		else
+		{
+			sessionFactory().save(user);
+			return user;
+		}
+	}
+
+	public void delete(Long id)
+	{
+		User user = findOne(id);
+		sessionFactory().delete(user);
+	}
+
 }

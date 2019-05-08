@@ -21,7 +21,7 @@ import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 @RestController
 @RequestMapping(path="/api/trosak", produces="application/json")
 @CrossOrigin
-@Secured({"ROLE_USER"})
+@Secured({"ROLE_USER", "ROLE_ADMIN"})
 public class TrosakRestController {
 
 	private final HibernateTrosakRepository trosakRepo;
@@ -61,17 +61,11 @@ public class TrosakRestController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Trosak> update(@RequestBody Trosak trosak)
+	public ResponseEntity<Trosak> update(@PathVariable Long id, @RequestBody Trosak trosak)
 	{
-		Trosak tr = trosakRepo.update(trosak);
-		if (tr == null)
-		{
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-		}
-		else
-		{
-			return new ResponseEntity<Trosak>(trosak, HttpStatus.OK);
-		}
+		Trosak tr = trosakRepo.update(trosak, id);
+		return new ResponseEntity<Trosak>(tr, HttpStatus.OK);
+
 	}
 
 	@ResponseStatus(HttpStatus.NO_CONTENT)
