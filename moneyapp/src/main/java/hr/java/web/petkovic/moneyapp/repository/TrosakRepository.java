@@ -19,6 +19,8 @@ public interface TrosakRepository extends CrudRepository<Trosak, Long>{
 
 	List<Trosak> findByNazivLike(String trosakNaziv);
 
+	List<Trosak> findByNazivLikeAndNovcanikIdIn(String naziv, List<Long> id);
+
 	void deleteByNovcanikId(Long novcanikId);
 
 	List<Trosak> findByNovcanikId(Long novcanikId);

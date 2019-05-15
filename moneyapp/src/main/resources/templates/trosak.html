@@ -57,6 +57,7 @@
 
 	</form>
 	</div>
+	<a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/troskovi/nadjiNovcanik}">Trazi novcanik</a>
 	<!-- <a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/troskovi/role}">Pogledaj role</a>  -->
 </div>
 </body>

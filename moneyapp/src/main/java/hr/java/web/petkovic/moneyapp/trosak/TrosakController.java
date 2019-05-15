@@ -126,7 +126,7 @@ public class TrosakController {
 	@Transactional
 	@GetMapping("/isprazniNovcanik")
 	public String resetWallet(SessionStatus status, HttpSession session) {
-		trosakRepo.deleteByNovcanikId(((Novcanik) session.getAttribute("novcanik")).getId());
+		trosakRepo.deleteByNovcanikId(((List<Novcanik>) session.getAttribute("novcanik")).get(0).getId());
 		status.setComplete();
 		return "redirect:/troskovi/novitrosak";
 	}
@@ -156,11 +156,67 @@ public class TrosakController {
 	public String nadjenTrosak(@RequestParam String imeTroska, Model model)
 	{
 		List<Trosak> troskovi = new ArrayList<>();
-		troskovi = trosakRepo.findByNazivLike(imeTroska);
+		User user = userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+		List<Novcanik> novcan = novcanikRepo.findByUser(user);
+		List<Long> ids = new ArrayList<>();
+		for (Novcanik n : novcan)
+		{
+			ids.add(n.getId());
+		}
+		troskovi = trosakRepo.findByNazivLikeAndNovcanikIdIn("%"+imeTroska+"%", ids);
 		logger.info("troskovi" + troskovi.toString());
 		model.addAttribute("listaTrazenihTroskova", troskovi);
 		return "traziTrosak";
 	}
+
+	@GetMapping("nadjiNovcanik")
+	public String nadjiNovcanik()
+	{
+		return "nadjiNovcanik";
+	}
+
+//	@PostMapping("nadjiNovcanik")
+//	public String searchNovcanik(@RequestParam String korisnicko, @RequestParam String operator, @RequestParam String iznos, @RequestParam String iznos2, Model model)
+//	{
+//		logger.info("korisnicko" + korisnicko);
+//		logger.info("iznos1:" + iznos);
+//		logger.info("iznos2:" + iznos2);
+//		List<Novcanik> novcanici = new ArrayList<>();
+//		if(!korisnicko.isEmpty())
+//		{
+//			novcanici = novcanikRepo.findAllByUser_Username(korisnicko);
+//		}
+//		else if (!iznos.isEmpty())
+//		{
+//			logger.info("usao u iznos");
+//			if (operator.equals(">"))
+//			{
+//				novcanici = novcanikRepo.findAllByListaTroskova_IznosGreaterThanEqual(Double.parseDouble(iznos));
+//			}
+//			else if(operator.equals("<"))
+//			{
+//				novcanici = novcanikRepo.findAllByListaTroskova_IznosLessThanEqual(Double.parseDouble(iznos));
+//			}
+//			else
+//			{
+//				novcanici = novcanikRepo.findAllByListaTroskova_IznosGreaterThanEqualAndListaTroskova_IznosLessThanEqual(Double.parseDouble(iznos), Double.parseDouble(iznos2));
+//			}
+//		}
+//		if (operator.equals(">"))
+//		{
+//			novcanici = novcanikRepo.findAllByUser_UsernameAndListaTroskova_IznosGreaterThanEqual(korisnicko, Double.parseDouble(iznos));
+//		}
+//		else if (operator.equals("<"))
+//		{
+//			novcanici = novcanikRepo.findAllByUser_UsernameAndListaTroskova_IznosLessThanEqual(korisnicko, Double.parseDouble(iznos));
+//		}
+//		else
+//		{
+//			novcanici = novcanikRepo.findAllByUser_UsernameAndListaTroskova_IznosGreaterThanEqualAndListaTroskova_IznosLessThanEqual(korisnicko, Double.parseDouble(iznos), Double.parseDouble(iznos2));
+//		}
+//		model.addAttribute("listaNovcanika", novcanici);
+//		return "nadjiNovcanik";
+//	}
 	/*
 	 * @GetMapping("/role") public String pogledajRole(Model model) { String
 	 * currentUser =

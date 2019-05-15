@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" th:href="@{/css/trosak.css}">
+	<title>MoneyApp</title>
+</head>
+<body>
+
+	<div style="text-align: center" sec:authorize="isAuthenticated()">
+        <form method="POST" th:action="@{/logout}">
+            Ulogirani ste kao <span sec:authentication="name">Korisnik</span>.
+            <input type="submit" value="Logout">
+        </form>
+    </div>
+    <div class="col-md-6">
+		<div class="col-md-12">
+			<img class="col-md-3" th:src="@{/images/piggy.png}">
+			<h1 class="naslov col-md-3">Money Saver</h1>
+		</div>
+		<form th:action="@{/troskovi/nadjiNovcanik}" method="post">
+			<input type="text" name="korisnicko">
+			<select name="operator">
+				<option value="<"> Manje</option>
+				<option value=">"> Vise</option>
+				<option value="<>"> Izmedju</option>
+			</select>
+			<input type="text" name="iznos">
+			<input type="text" name="iznos2">
+			<input type="submit" value="Pretrazi">
+		</form>
+	</div>
+	<div class="col-md-12">
+		<table class="table">
+			<thead>
+				<th>ID</th>
+				<th>Username</th>
+				<th>Datum</th>
+				<th>Ime</th>
+				<th>Tip</th>
+			</thead>
+			<tbody>
+				<tr th:each="novcanik : ${listaNovcanika}">
+					<td th:text="${novcanik.id}"></td>
+					<td th:text="${novcanik.user.username}"></td>
+					<td th:text="${#temporals.format(novcanik.createDate, 'dd.MM.yyyy')}"></td>
+					<td th:text="${novcanik.ime}"></td>
+					<td th:text="${novcanik.tipNovcanika}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<a class="col-md-2" th:href="@{/troskovi/novitrosak}">Povratak</a>
+	
+</body>
+</html>
