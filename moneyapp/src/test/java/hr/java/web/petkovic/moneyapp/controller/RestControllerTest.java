@@ -93,27 +93,27 @@ public class RestControllerTest {
 		.andExpect(content().string(containsString("oper")));
 	}
 
-	@Test
-	public void postNovcanikTest() throws Exception
-	{
-		this.mockMvc
-		.perform(post("/api/novcanik").with(user("admin").password("admin").roles("USER", "ADMIN")).with(csrf()).params(generateNovcanik(novcanikMap)).contentType(MediaType.APPLICATION_JSON_VALUE))
-		.andExpect(status().is2xxSuccessful());
-	}
-
-	@Test
-	public void putNovcanikTest() throws Exception
-	{
-		this.mockMvc
-		.perform(put("/api/novcanik/5").with(user("admin").password("admin").roles("USER", "ADMIN")).with(csrf()).params(generateNovcanik(novcanikMap)).contentType(MediaType.APPLICATION_JSON_VALUE))
-		.andExpect(status().is2xxSuccessful());
-	}
-
-	@Test
-	public void deleteNovcanikTest() throws Exception
-	{
-		this.mockMvc
-		.perform(delete("/api/novcanik/3").with(user("admin").password("admin").roles("USER", "ADMIN")).with(csrf()))
-		.andExpect(status().isNoContent());
-	}
+//	@Test
+//	public void postNovcanikTest() throws Exception
+//	{
+//		this.mockMvc
+//		.perform(post("/api/novcanik").with(user("admin").password("admin").roles("USER", "ADMIN")).with(csrf()).params(generateNovcanik(novcanikMap)).contentType(MediaType.APPLICATION_JSON_VALUE))
+//		.andExpect(status().is2xxSuccessful());
+//	}
+//
+//	@Test
+//	public void putNovcanikTest() throws Exception
+//	{
+//		this.mockMvc
+//		.perform(put("/api/novcanik/5").with(user("admin").password("admin").roles("USER", "ADMIN")).with(csrf()).params(generateNovcanik(novcanikMap)).contentType(MediaType.APPLICATION_JSON_VALUE))
+//		.andExpect(status().is2xxSuccessful());
+//	}
+//
+//	@Test
+//	public void deleteNovcanikTest() throws Exception
+//	{
+//		this.mockMvc
+//		.perform(delete("/api/novcanik/3").with(user("admin").password("admin").roles("USER", "ADMIN")).with(csrf()))
+//		.andExpect(status().isNoContent());
+//	}
 }
