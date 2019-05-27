@@ -23,6 +23,8 @@ import org.springframework.util.MultiValueMap;
 import hr.java.web.petkovic.moneyapp.trosak.Novcanik;
 import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc

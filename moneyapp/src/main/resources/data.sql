@@ -1,3 +1,4 @@
+delete from 
 insert into users (username, password, enabled)
 values ('admin', '$2a$10$M0z7Z.ne.vBxOjIoqBoTQOoCUss4F.7zi9g6m93Zx8sl7XEYk36Vy', 1);
 insert into users (username, password, enabled)

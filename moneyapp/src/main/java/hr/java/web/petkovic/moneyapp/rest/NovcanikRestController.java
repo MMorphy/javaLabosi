@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,13 +61,14 @@ public class NovcanikRestController {
 
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping(consumes="application/json")
-	public Novcanik save(@RequestBody Novcanik trosak)
+	public Novcanik save(Novcanik trosak)
 	{
 		return novcanikRepo.save(trosak);
 	}
 
+	@Transactional
 	@PutMapping("/{id}")
-	public ResponseEntity<Novcanik> update(@PathVariable Long id, @RequestBody Novcanik novcanik)
+	public ResponseEntity<Novcanik> update(@PathVariable Long id, Novcanik novcanik)
 	{
 		Optional<Novcanik> optNovcanik= novcanikRepo.findById(id);
 		if (optNovcanik.isPresent())
@@ -87,6 +89,7 @@ public class NovcanikRestController {
 		}
 	}
 
+	@Transactional
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{id}")
 	public void delete(@PathVariable Long id)

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import hr.java.web.petkovic.moneyapp.repository.NovcanikRepository;
 import hr.java.web.petkovic.moneyapp.repository.TrosakRepository;
 import hr.java.web.petkovic.moneyapp.trosak.Trosak;
@@ -27,6 +29,7 @@ import hr.java.web.petkovic.moneyapp.trosak.Trosak;
 @Secured({"ROLE_USER", "ROLE_ADMIN"})
 public class TrosakRestController {
 
+	private static Logger logger = LoggerFactory.getLogger(TrosakRestController.class);
 	@Autowired
 	private final TrosakRepository trosakRepo;
 	@Autowired
@@ -60,13 +63,13 @@ public class TrosakRestController {
 
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping(consumes="application/json")
-	public Trosak save(@RequestBody Trosak trosak)
+	public Trosak save( Trosak trosak)
 	{
 		return trosakRepo.save(trosak);
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Trosak> update(@PathVariable Long id, @RequestBody Trosak trosak)
+	public ResponseEntity<Trosak> update(@PathVariable Long id, Trosak trosak)
 	{
 		Optional<Trosak> tr = trosakRepo.findById(id);
 		if (tr.isPresent())
