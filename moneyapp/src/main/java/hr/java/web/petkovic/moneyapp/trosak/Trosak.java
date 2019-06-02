@@ -34,18 +34,18 @@ public class Trosak implements Serializable
 	private LocalDateTime createDate;
 
 	@Column(name="naziv")
-	@NotNull(message = "Polje Naziv ne smije biti prazno!")
-	@Size(min = 2, max = 30, message = "Naziv mora biti između 2 i 30 znakova!")
+	@NotNull(message="{msg.validation.expenseName}")
+	@Size(min = 2, max = 30, message="{msg.validation.expenseName.length}")
 	private String naziv;
 
 	@Column(name="iznos")
-	@NotNull(message = "Polje Iznos ne smije biti prazno!")
-	@Min(value = 20, message = "Iznos mora biti veći od 20!")
+	@NotNull(message="{msg.validation.expenseAmount}")
+	@Min(value = 20, message="{msg.validation.expenseAmount.min}")
 	private Double iznos;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name="vrstatroska", length=20)
-	@NotNull(message = "Vrsta Troška mora biti odabrana!")
+	@NotNull(message="{msg.validation.expenseType}")
 	private VrstaTroska vrstaTroska;
 
 	@Column(name="novcanik_id")

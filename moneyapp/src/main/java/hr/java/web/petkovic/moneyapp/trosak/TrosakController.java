@@ -119,8 +119,9 @@ public class TrosakController {
 		User user = userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 		List<Novcanik> novcanik = novcanikRepo.findByUser(user);
 		session.setAttribute("novcanik", novcanik);
+		session.setAttribute("novcanici", novcanik);
 		logger.debug("Nova sesija. Dodan novcanik:" + session.getAttribute("novcanik").toString());
-		return new Novcanik();
+		return novcanik.get(0);
 	}
 
 	@Transactional

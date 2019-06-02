@@ -8,24 +8,56 @@
 <title>Prvi Labos</title>
 </head>
 <body>
-	<div style="text-align: center" sec:authorize="isAuthenticated()">
-		<form method="POST" th:action="@{/logout}">
-			Ulogirani ste kao <span sec:authentication="name">Korisnik</span>. <input
-				type="submit" value="Logout">
-		</form>
-	</div>
+    <div style="text-align: center" sec:authorize="isAuthenticated()">
+        <form method="POST" th:action="@{/logout}">
+            <p><span th:text="#{msg.login.loggedIn}"></span><span> </span><span sec:authentication="name"></span></p>
+            <input type="submit" value="Logout" >
+        </form>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script th:inline="javascript">
+            $(document).ready(function() {
+                $("#locales").change(function () {
+                    var selectedOption = $('#locales').val();
+                    if (selectedOption != ''){
+                        window.location.replace('?language=' + selectedOption);
+                    }
+                });
+            });
+    </script>
+    <select id="locales"> 
+    	<option th:value="hr"
+                    th:selected="${#locale.language == 'hr'}"
+                    th:text="#{msg.lang.hr}"></option>
+    	<option th:value="en"
+                    th:selected="${#locale.language == 'en'}"
+                    th:text="#{msg.lang.en}"></option>
+    
+    </select>
 	<div class="col-md-4">
-		<h1>Trošak unesen!</h1>
-		<p
-			th:text="'Uspješno ste unijeli trošak ' + ${trosak.naziv} + ' u iznosu od ' + ${trosak.iznos} + ' kn.'" />
-		<p
-			th:text="'Trošak je unesen pod kategoriju ' + ${trosak.vrstaTroska} + ' na datum ' + ${date} + '.'" />
-		<p
-			th:text="'Stanje u novčaniku ' + ${novcanik.ime} + ' tipa ' + ${novcanik.tipNovcanika} + ' je ' + ${suma} + ' kn.'" />
-
+		<h1 th:text="#{msg.accepted.title}">Trošak unesen!</h1>
+		<p>
+		<span th:text="#{msg.accepted.congratulations}">
+		</span><span th:text="${trosak.naziv}"></span>
+		<span> </span><span th:text="#{msg.accepted.amount}"></span>
+		<span th:text="${trosak.iznos}"></span><span>kn.</span>
+		</p>
+		
+		<p>
+		<span th:text="#{msg.accepted.category}"></span>
+		<span th:text="${trosak.vrstaTroska}"></span>
+		<span th:text="#{msg.accepted.date}"></span>
+		<span th:text="${date}"></span>
+		</p>
+		<p>
+		<span th:text="#{msg.accepted.wallet}"></span>
+		<span th:text="${novcanik.ime}"></span>
+		<span th:text="#{msg.accepted.is}"></span>
+		<span th:text="${suma}"></span>
+		</p>
 		<a sec:authorize="hasRole('ROLE_ADMIN')" class="col-md-2"
-			th:href="@{/troskovi/isprazniNovcanik}">Isprazni novčanik</a> 
-			<a class="col-md-2" th:href="@{/troskovi/novitrosak}">Povratak</a>
+			th:href="@{/troskovi/isprazniNovcanik}" th:text="#{msg.accepted.emptyWallet}">Isprazni novčanik</a> 
+			<a class="col-md-2" th:href="@{/troskovi/novitrosak}" th:text="#{msg.show.back}">Povratak</a>
 
 	</div>
 </body>

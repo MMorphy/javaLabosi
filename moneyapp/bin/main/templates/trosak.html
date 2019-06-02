@@ -7,37 +7,58 @@
 	<title>MoneyApp</title>
 </head>
 <body>
-	<div style="text-align: center" sec:authorize="isAuthenticated()">
+    <div style="text-align: center" sec:authorize="isAuthenticated()">
         <form method="POST" th:action="@{/logout}">
-            Ulogirani ste kao <span sec:authentication="name">Korisnik</span>.
-            <input type="submit" value="Logout">
+            <p><span th:text="#{msg.login.loggedIn}"></span><span> </span><span sec:authentication="name"></span></p>
+            <input type="submit" value="Logout" >
         </form>
     </div>
-<div class="col-md-6">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script th:inline="javascript">
+            $(document).ready(function() {
+                $("#locales").change(function () {
+                    var selectedOption = $('#locales').val();
+                    if (selectedOption != ''){
+                        window.location.replace('?language=' + selectedOption);
+                    }
+                });
+            });
+    </script>
+    <select id="locales"> 
+    	<option th:value="hr"
+                    th:selected="${#locale.language == 'hr'}"
+                    th:text="#{msg.lang.hr}"></option>
+    	<option th:value="en"
+                    th:selected="${#locale.language == 'en'}"
+                    th:text="#{msg.lang.en}"></option>
+    
+    </select>
+	<div class="col-md-6">
 	<div class="col-md-12">
 		<img class="col-md-3" th:src="@{/images/piggy.png}">
 		<h1 class="naslov col-md-3">Money Saver</h1>
 	</div>
 	<div class="col-md-12">
-	<h2>Unos novog troška</h2>
+	<h2 th:text="#{msg.new.enterNewExpense}">Unos novog troška</h2>
 	<form method="POST" th:object="${trosak}" th:action="@{/troskovi/novitrosak}">
 	  <div class="form-group">
-	    <label for="naziv">Naziv:</label>
-	    <input type="text" class="form-control" id="naziv" placeholder="Unesite ime troška" th:field="${trosak.naziv}">
+	    <label for="naziv" th:text="#{msg.new.name}">Naziv:</label>
+	    <input type="text" class="form-control" id="naziv" th:field="${trosak.naziv}">
 	  	<p class="alert alert-warning" th:if="${#fields.hasErrors('naziv')}" th:errors="*{naziv}">Krivi unos naziva</p>
 	  </div>
 	  <div class="form-group">
-	    <label for="vrstaTroska">Vrsta troška:</label>
+	    <label for="vrstaTroska" th:text="#{msg.new.type}">Vrsta troška:</label>
 	    <select th:field="*{vrstaTroska}" class="form-control">
-			<option value="" hidden="hidden">------ Odaberite vrijednost ------</option>
+			<option value="" hidden="hidden" th:text="#{msg.new.selectValue}">------ Odaberite vrijednost ------</option>
 			<option th:each="vrsta : ${vrste}" 
 					th:value="${vrsta}" 
 					th:text="${vrsta}">
 			</option>
 		</select>
+	    <p class="alert alert-warning" th:if="${#fields.hasErrors('vrstaTroska')}" th:errors="${trosak.vrstaTroska}"></p>
 		
 		<select th:field="*{novcanikId}" class="form-control">
-			<option value="" hidden="hidden">------ Odaberite vrijednost ------</option>
+			<option value="" hidden="hidden" th:text="#{msg.new.selectValue}">------ Odaberite vrijednost ------</option>
 			<option th:each="nov : ${novcanici}" 
 					th:value="${nov.id}" 
 					th:text="${nov.ime} + ${mapa.get(nov.id)}">
@@ -47,17 +68,17 @@
 		
 	  </div>
 	  <div class="form-group">
-	    <label for="iznos">Iznos:</label>
+	    <label for="iznos" th:text="#{msg.new.amount}">Iznos:</label>
 	    <input type="number" class="form-control" id="iznos" th:field="${trosak.iznos}" placeholder="0">
 	  	<p class="alert alert-warning" th:if="${#fields.hasErrors('iznos')}" th:errors="${trosak.iznos}">Krivi unos iznosa! Molim pozitivan broj</p>
 	  </div>
-	  <input type="submit" value="Unesi trošak">
-	  <a th:href="@{/troskovi/novinovcanik}">Dodaj novcanik</a>
-	  <a th:href="@{/troskovi/trazitrosak}">Trazi trosak</a>
-
+	  <input type="submit" th:value="#{msg.new.sumbit}">
+	  
 	</form>
 	</div>
-	<a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/troskovi/nadjiNovcanik}">Trazi novcanik</a>
+	<a th:href="@{/troskovi/novinovcanik}" th:text="#{msg.new.addWallet}">Dodaj novcanik</a>
+	<a th:href="@{/troskovi/trazitrosak}" th:text="#{msg.new.searchExpense}">Trazi trosak</a>
+	<!-- <a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/troskovi/nadjiNovcanik}" th:text="#{msg.new.searchWallet}">Trazi novcanik</a>  -->
 	<!-- <a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/troskovi/role}">Pogledaj role</a>  -->
 </div>
 </body>

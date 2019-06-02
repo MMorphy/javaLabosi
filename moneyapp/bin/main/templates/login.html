@@ -6,6 +6,26 @@
 </head>
 <body>
     <div class="container">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script th:inline="javascript">
+            $(document).ready(function() {
+                $("#locales").change(function () {
+                    var selectedOption = $('#locales').val();
+                    if (selectedOption != ''){
+                        window.location.replace('?language=' + selectedOption);
+                    }
+                });
+            });
+    </script>
+    <select id="locales"> 
+    	<option th:value="hr"
+                    th:selected="${#locale.language == 'hr'}"
+                    th:text="#{msg.lang.hr}"></option>
+    	<option th:value="en"
+                    th:selected="${#locale.language == 'en'}"
+                    th:text="#{msg.lang.en}"></option>
+    
+    </select>
         <div class=" col-md-8 help">
             <div class="row">
                 <h1>Login</h1>
@@ -13,7 +33,7 @@
             <form method="POST">
                 <div class="row">
                     <div class="col-sm-12">
-                        <label>Korisničko ime:</label>
+                        <label th:text="#{msg.login.username}">username</label>
                     </div>
                     <div class="col-sm-12">
                         <input type="text" name="username" class="form-control">
@@ -21,7 +41,7 @@
                 </div>
                 <div class="row">
                     <div class="col-sm-12">
-                        <label>Lozinka:</label>
+                        <label th:text="#{msg.login.password}">Lozinka:</label>
                     </div>
                     <div class="col-sm-12">
                         <input type="password" name="password" class="form-control">
